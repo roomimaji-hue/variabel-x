@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memento Mori | Entropy</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;500;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: #000;
+            color: #e0e0e0;
+            font-family: 'Rajdhani', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* LAYAR INPUT TANGGAL LAHIR */
+        #setup-screen {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        input[type="date"] {
+            background: #111;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 15px;
+            font-family: inherit;
+            font-size: 1.2rem;
+            margin: 20px 0;
+            border-radius: 5px;
+            color-scheme: dark;
+        }
+
+        button {
+            background: #e0e0e0;
+            color: #000;
+            border: none;
+            padding: 12px 30px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* LAYAR UTAMA (SETELAH SETUP) */
+        #main-screen {
+            display: none;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 20px;
+        }
+
+        .label {
+            font-size: 0.7rem;
+            color: #666;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        /* HITUNGAN MUNDUR BESAR */
+        .countdown {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 10px 0;
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .countdown span {
+            color: #444;
+            font-size: 0.8rem;
+            font-weight: 300;
+        }
+
+        /* DETAIL STATISTIK (3 KOLOM) */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr 1fr; /* Kolom 1 agak lebar buat umur */
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        .stat-box {
+            background: #0a0a0a;
+            padding: 10px;
+            border: 1px solid #222;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .stat-val { font-size: 0.9rem; font-weight: bold; color: #ff3333; }
+        .stat-val.age { color: #00dbde; font-size: 0.9rem; } /* Warna Cyan buat Umur */
+
+        /* GRID TITIK HIDUP (VISUAL MINGGU) */
+        .life-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+        .dot {
+            width: 4px;
+            height: 4px;
+            background-color: #222; 
+            border-radius: 50%;
+        }
+        .dot.past { background-color: #ff3333; opacity: 0.4; } 
+        .dot.current { 
+            background-color: #fff; 
+            box-shadow: 0 0 10px #fff;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+
+        /* PESAN TRANSENDEN */
+        .footer-msg {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #aaa;
+            border-top: 1px solid #333;
+            padding-top: 20px;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+        
+        .highlight { color: #fff; font-style: italic;}
+
+        .back-btn {
+            display: block;
+            text-align: center;
+            margin-top: 30px;
+            color: #444;
+            text-decoration: none;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="setup-screen">
+        <div class="label">INISIASI VARIABEL WAKTU</div>
+        <h2 style="margin-bottom: 10px;">KAPAN MATERIMU TERCIPTA?</h2>
+        <input type="date" id="birthdate">
+        <button onclick="saveDate()">MULAI SIMULASI</button>
+    </div>
+
+    <div id="main-screen">
+        <div class="header">
+            <div class="label">ESTIMASI SISA WAKTU (ASUMSI 80 THN)</div>
+            <div class="countdown" id="timer">Loading...</div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="label">UMUR SAAT INI</div>
+                <div class="stat-val age" id="current-age">0 Thn</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">SISA HARI</div>
+                <div class="stat-val" id="days-left">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">PROGRESS</div>
+                <div class="stat-val" id="percentage">0%</div>
+            </div>
+        </div>
+
+        <div class="label" style="text-align: center; margin-bottom: 10px;">PETA VISUAL (1 TITIK = 1 MINGGU)</div>
+        <div class="life-grid" id="grid"></div>
+
+        <div class="footer-msg">
+            "Jangan takut pada angka yang habis. Takutlah jika ia hilang tanpa kau belanjakan.<br><br>
+            <span class="highlight">Napasmu hari ini adalah mata uang yang tidak dimiliki orang mati.</span>"
+        </div>
+
+        <a href="index.html" class="back-btn"><< KEMBALI KE LOBBY</a>
+    </div>
+
+    <script>
+        const MAX_YEARS = 80;
+        const WEEKS_IN_LIFETIME = MAX_YEARS * 52;
+        
+        function saveDate() {
+            const input = document.getElementById('birthdate').value;
+            if (!input) return alert("Isi tanggal dulu, Bung.");
+            localStorage.setItem('userBirthdate', input);
+            initApp(input);
+        }
+
+        function calculatePreciseAge(birthDate) {
+            const now = new Date();
+            let years = now.getFullYear() - birthDate.getFullYear();
+            let months = now.getMonth() - birthDate.getMonth();
+            let days = now.getDate() - birthDate.getDate();
+
+            // Koreksi jika hari negatif (ambil hari dari bulan sebelumnya)
+            if (days < 0) {
+                months--;
+                // Mendapatkan jumlah hari di bulan sebelumnya
+                let prevMonthDate = new Date(now.getFullYear(), now.getMonth(), 0);
+                days += prevMonthDate.getDate();
+            }
+
+            // Koreksi jika bulan negatif
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+
+            return { years, months, days };
+        }
+
+        function initApp(dateString) {
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('main-screen').style.display = 'block';
+
+            const birthDate = new Date(dateString);
+            const deathDate = new Date(birthDate);
+            deathDate.setFullYear(birthDate.getFullYear() + MAX_YEARS);
+
+            setInterval(() => {
+                const now = new Date();
+                
+                // 1. HITUNG UMUR PRESISI (Tahun, Bulan, Hari)
+                const age = calculatePreciseAge(birthDate);
+                
+                document.getElementById('current-age').innerHTML = 
+                    `${age.years}th ${age.months}bln ${age.days}hr`;
+
+                // 2. HITUNG SISA WAKTU
+                const diff = deathDate - now;
+
+                if (diff <= 0) {
+                    document.getElementById('timer').innerText = "WAKTU HABIS";
+                    return;
+                }
+
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                const ms = Math.floor((diff % 1000) / 10); 
+
+                const daysLeft = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+                document.getElementById('timer').innerHTML = 
+                    `${hours}<span>Jam</span> ${minutes}<span>Mnt</span> ${seconds}<span>Dtk</span> <span style="color:#ff3333; font-size:1.5rem">${ms}</span>`;
+                
+                document.getElementById('days-left').innerText = daysLeft.toLocaleString();
+
+                // 3. PERSENTASE
+                const totalLife = deathDate - birthDate;
+                const lived = now - birthDate;
+                const percent = (lived / totalLife) * 100;
+                document.getElementById('percentage').innerText = percent.toFixed(5) + "%";
+
+            }, 50);
+
+            // GRID GENERATOR
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            
+            const now = new Date();
+            const weeksLived = Math.floor((now - birthDate) / (1000 * 60 * 60 * 24 * 7));
+
+            for (let i = 0; i < WEEKS_IN_LIFETIME; i++) {
+                const dot = document.createElement('div');
+                dot.classList.add('dot');
+                if (i < weeksLived) dot.classList.add('past'); 
+                else if (i === weeksLived) dot.classList.add('current');
+                grid.appendChild(dot);
+            }
+        }
+
+        const savedDate = localStorage.getItem('userBirthdate');
+        if (savedDate) {
+            document.getElementById('birthdate').value = savedDate;
+            initApp(savedDate);
+        }
+    </script>
+</body>
+</html>
