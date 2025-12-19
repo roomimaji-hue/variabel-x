@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Untuk Risa | Variabel X</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%); /* Biru Malam Gelap */
+            color: white;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        /* LAYAR PESAN TENGAH */
+        #final-message {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            opacity: 0;
+            transition: opacity 2s ease;
+            z-index: 10;
+            pointer-events: none;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        #final-message.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #final-message img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #89cff0; /* Biru Langit */
+            box-shadow: 0 0 30px rgba(137, 207, 240, 0.5);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.5rem;
+            color: #89cff0;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px #89cff0;
+        }
+
+        p { font-size: 1.1rem; line-height: 1.6; }
+
+        /* POPUP KATA KECIL */
+        .pop-up {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(137, 207, 240, 0.3);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s;
+            font-size: 0.9rem;
+            color: #b3e5fc;
+            white-space: nowrap;
+        }
+
+        canvas { display: block; }
+        
+        /* TOMBOL MUSIK */
+        #music-control {
+            position: fixed;
+            bottom: 20px; right: 20px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid #89cff0;
+            color: #89cff0;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 20;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" loop>
+        <source src="lagu.m4a" type="audio/mp4">
+    </audio>
+    <button id="music-control" onclick="toggleMusic()">🎵</button>
+
+    <canvas id="starCanvas"></canvas>
+
+    <div id="final-message">
+        <img src="risa.jpg" alt="Risa">
+        <h1>Dear R,</h1>
+        <p>
+            "Karena menemukanmu, dan jatuh cinta padamu adalah hal terindah yang masih kudoakan; kau tak pernah ingin bosan."
+        </p>
+        <br>
+        <a href="index.html" style="color: #555; font-size: 0.8rem; text-decoration: none;">Kembali ke Bumi</a>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('starCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        const stars = [];
+        const specialStars = [];
+        let clickedCount = 0;
+        let isFinal = false;
+
+        // DATA KATA-KATA & KOORDINAT HURUF "R"
+        const messages = [
+            { text: "Aku suka caramu berpikir.", dx: -50, dy: 100 },
+            { text: "Suka caramu merasa", dx: -50, dy: -50 },
+            { text: "Aku benci cantikmu, itu awet dan manis", dx: 30, dy: -50 },
+            { text: "Benci empukmu, mungkin, itu nyaman", dx: 30, dy: 20 },
+            { text: "Aku ..., mmm, ayolaaahh, senyum☺️", dx: 60, dy: 100 }
+        ];
+
+        function init() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            createStars();
+        }
+
+        function createStars() {
+            stars.length = 0;
+            specialStars.length = 0;
+            
+            // Bintang Latar
+            for (let i = 0; i < 150; i++) {
+                stars.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    size: Math.random() * 2,
+                    alpha: Math.random(),
+                    speed: Math.random() * 0.5
+                });
+            }
+
+            // Bintang Spesial (R)
+            const cx = width / 2;
+            const cy = height / 2 - 50;
+
+            messages.forEach((msg, index) => {
+                specialStars.push({
+                    x: cx + msg.dx,
+                    y: cy + msg.dy,
+                    size: 6,
+                    text: msg.text,
+                    clicked: false,
+                    id: index
+                });
+            });
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+
+            // Gambar Bintang Latar
+            ctx.fillStyle = "white";
+            stars.forEach(star => {
+                ctx.globalAlpha = star.alpha;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fill();
+                star.alpha += (Math.random() - 0.5) * 0.1;
+                if (star.alpha < 0) star.alpha = 0;
+                if (star.alpha > 1) star.alpha = 1;
+            });
+
+            // Gambar Garis Rasi (Kalau diklik)
+            if (clickedCount > 0) {
+                ctx.strokeStyle = "rgba(137, 207, 240, 0.5)";
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                
+                // Logika Garis Huruf R
+                if(specialStars[0].clicked && specialStars[1].clicked) { ctx.moveTo(specialStars[0].x, specialStars[0].y); ctx.lineTo(specialStars[1].x, specialStars[1].y); }
+                if(specialStars[1].clicked && specialStars[2].clicked) { ctx.moveTo(specialStars[1].x, specialStars[1].y); ctx.lineTo(specialStars[2].x, specialStars[2].y); }
+                if(specialStars[2].clicked && specialStars[3].clicked) { ctx.moveTo(specialStars[2].x, specialStars[2].y); ctx.lineTo(specialStars[3].x, specialStars[3].y); }
+                if(specialStars[3].clicked && specialStars[1].clicked) { ctx.moveTo(specialStars[3].x, specialStars[3].y); ctx.lineTo(specialStars[1].x, specialStars[1].y); }
+                if(specialStars[3].clicked && specialStars[4].clicked) { ctx.moveTo(specialStars[3].x, specialStars[3].y); ctx.lineTo(specialStars[4].x, specialStars[4].y); }
+                
+                ctx.stroke();
+            }
+
+            // Gambar Bintang Spesial
+            specialStars.forEach(star => {
+                ctx.globalAlpha = 1;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = "#89cff0"; 
+                ctx.fillStyle = star.clicked ? "#89cff0" : "#fff";
+                
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('click', function(e) {
+            if (isFinal) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            specialStars.forEach(star => {
+                const dist = Math.hypot(star.x - x, star.y - y);
+                if (dist < 30 && !star.clicked) {
+                    star.clicked = true;
+                    clickedCount++;
+                    showPopup(star.x, star.y, star.text);
+                    playMusic();
+
+                    if (clickedCount === specialStars.length) {
+                        setTimeout(showFinalMessage, 1500);
+                    }
+                }
+            });
+        });
+
+        function showPopup(x, y, text) {
+            const el = document.createElement('div');
+            el.className = 'pop-up';
+            el.innerText = text;
+            el.style.left = x + 'px';
+            el.style.top = (y - 40) + 'px';
+            document.body.appendChild(el);
+            setTimeout(() => el.style.opacity = 1, 10);
+            setTimeout(() => { el.style.opacity = 0; setTimeout(() => el.remove(), 500); }, 3000);
+        }
+
+        function showFinalMessage() {
+            isFinal = true;
+            document.getElementById('final-message').classList.add('visible');
+        }
+
+        const audio = document.getElementById('bg-music');
+        function playMusic() {
+            if (audio.paused) {
+                audio.play().catch(e => console.log("Perlu interaksi user dulu"));
+            }
+        }
+        function toggleMusic() {
+            if (audio.paused) audio.play();
+            else audio.pause();
+        }
+
+        window.addEventListener('resize', init);
+        init();
+        animate();
+    </script>
+</body>
+</html>
