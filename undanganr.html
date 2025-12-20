@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Wedding of R & R</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #8DA399; /* Sage Green - Teduh */
+            --secondary: #F5F5DC; /* Cream/Beige */
+            --dark: #4A5D54; /* Dark Green */
+            --text: #555555;
+            --white: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text);
+            background-color: var(--secondary);
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .font-serif { font-family: 'Playfair Display', serif; }
+
+        /* --- COVER DEPAN (PINTU) --- */
+        #cover {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100vh;
+            /* Foto1 dipakai di sini sebagai background cover */
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('foto1.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: var(--white);
+            z-index: 9999;
+            text-align: center;
+            transition: transform 1s ease-in-out;
+        }
+
+        #cover.open { transform: translateY(-100%); }
+
+        .btn-buka {
+            margin-top: 30px; padding: 12px 30px;
+            background: var(--primary); color: var(--white);
+            border: none; border-radius: 50px;
+            font-size: 1rem; cursor: pointer; transition: 0.3s;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .btn-buka:hover { background: var(--dark); transform: scale(1.05); }
+
+        /* --- MUSIC CONTROL --- */
+        .music-box {
+            position: fixed; bottom: 30px; right: 20px;
+            width: 50px; height: 50px;
+            background: var(--white); border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 100; cursor: pointer; border: 2px solid var(--primary);
+            animation: spin 4s linear infinite; animation-play-state: paused;
+        }
+        .music-box.playing { animation-play-state: running; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* --- CONTENT STYLE --- */
+        .section { padding: 60px 20px; text-align: center; position: relative; }
+
+        /* MEMPELAI */
+        .couple-img {
+            width: 150px; height: 150px; border-radius: 50%;
+            object-fit: cover; border: 5px solid var(--primary);
+            margin: 20px auto;
+        }
+        .ayat-box {
+            background: var(--white); padding: 30px;
+            border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            margin: 30px auto; max-width: 600px; border-left: 5px solid var(--primary);
+        }
+
+        /* COUNTDOWN */
+        .timer-box { display: flex; justify-content: center; gap: 15px; margin-top: 30px; }
+        .time-unit { background: var(--primary); color: var(--white); padding: 10px; border-radius: 10px; min-width: 70px; }
+        .time-unit span { font-size: 1.5rem; font-weight: bold; display: block; }
+
+        /* GALERI */
+        .gallery-container { display: flex; overflow-x: auto; gap: 15px; padding: 20px 0; scrollbar-width: none; }
+        .gallery-img { width: 300px; height: 400px; object-fit: cover; border-radius: 15px; flex-shrink: 0; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+
+        /* AMPLOP */
+        .card-box {
+            background: var(--white); padding: 20px; border-radius: 15px;
+            margin: 15px auto; max-width: 400px; border: 1px dashed var(--primary);
+        }
+        
+        footer { background: var(--dark); color: var(--white); padding: 30px; font-size: 0.9rem; }
+        a { text-decoration: none; }
+        .leaf-icon { color: var(--primary); font-size: 2rem; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" loop>
+        <source src="musik.m4a" type="audio/mp4">
+    </audio>
+    <div class="music-box" onclick="toggleMusic()">
+        <i class="fas fa-compact-disc" style="color: var(--primary); font-size: 24px;"></i>
+    </div>
+
+    <section id="cover">
+        <h3 style="letter-spacing: 3px; font-size: 1rem; text-transform: uppercase;">The Wedding of</h3>
+        <h1 style="font-size: 4rem; margin: 20px 0;">R & R</h1>
+        <p>06 Januari 2026</p>
+        <button class="btn-buka" onclick="bukaUndangan()">
+            <i class="fas fa-envelope-open"></i> Buka Undangan
+        </button>
+    </section>
+
+    <section class="section">
+        <i class="fas fa-leaf leaf-icon"></i>
+        <div class="ayat-box">
+            <h3 style="color: var(--primary);">QS. Ar-Rum: 21</h3>
+            <p style="font-style: italic; font-size: 0.9rem; line-height: 1.6; margin-top: 15px;">
+                "Dan di antara tanda-tanda (kebesaran)-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri, agar kamu cenderung dan merasa tenteram kepadanya..."
+            </p>
+        </div>
+        
+        <div>
+            <img src="foto2.jpg" class="couple-img" alt="Pria">
+            <h2 class="font-serif">M Irham R</h2>
+            <p>Putra Bapak & Ibu Fulan</p>
+            <a href="https://instagram.com/M_Irham_R" target="_blank" style="color: var(--primary); display:block; margin-top:5px;"><i class="fab fa-instagram"></i> @M_Irham_R</a>
+        </div>
+
+        <h1 style="color: var(--primary); margin: 20px 0;">&</h1>
+
+        <div>
+            <img src="foto3.jpg" class="couple-img" alt="Wanita">
+            <h2 class="font-serif">Risa</h2>
+            <p>Putri Bapak & Ibu Fulan</p>
+        </div>
+    </section>
+
+    <section class="section" style="background-color: #E8EEDF;">
+        <i class="fas fa-calendar-day leaf-icon"></i>
+        <h2 class="font-serif">Rangkaian Acara</h2>
+        
+        <div class="card-box" style="margin-top: 30px;">
+            <h3>Selasa, 06 Januari 2026</h3>
+            <hr style="margin: 15px 0; border: 0; border-top: 1px solid #ccc;">
+            <p><strong>Akad Nikah:</strong> 08.00 - 10.00 WIB</p>
+            <p><strong>Resepsi:</strong> 11.00 - Selesai</p>
+            <br>
+            <p><strong>Lokasi:</strong><br>Gedung Serbaguna Tarogong, Garut</p>
+            <br>
+            <a href="https://www.google.com/maps/search/?api=1&query=Tarogong+Garut" target="_blank" class="btn-buka" style="margin: 0 auto; width: fit-content; text-decoration: none; justify-content: center;">
+                <i class="fas fa-location-arrow"></i> Lihat Peta
+            </a>
+        </div>
+
+        <h3 style="margin-top: 40px;">Menuju Hari Bahagia</h3>
+        <div id="timer" class="timer-box">
+            <div class="time-unit"><span id="days">0</span>Hari</div>
+            <div class="time-unit"><span id="hours">0</span>Jam</div>
+            <div class="time-unit"><span id="minutes">0</span>Menit</div>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2 class="font-serif" style="margin-bottom: 20px;">Gallery Kita</h2>
+        <div class="gallery-container">
+            <img src="foto4.jpg" class="gallery-img">
+            <img src="foto5.jpg" class="gallery-img">
+            <img src="foto1.jpg" class="gallery-img">
+        </div>
+        <p style="font-size: 0.8rem; margin-top: 10px; color: #999;">*Geser untuk melihat</p>
+    </section>
+
+    <section class="section" style="background-color: #E8EEDF;">
+        <h2 class="font-serif">Kirim Doa</h2>
+        <div class="card-box" style="text-align: left;">
+            <input type="text" id="namaTamu" placeholder="Nama Anda" style="width: 100%; padding: 10px; margin-bottom: 10px;">
+            <textarea id="ucapanTamu" placeholder="Tulis ucapan..." style="width: 100%; padding: 10px;" rows="3"></textarea>
+            <button onclick="kirimUcapan()" class="btn-buka" style="width: 100%; justify-content: center; margin-top: 10px;">Kirim</button>
+            <div id="listUcapan" style="margin-top: 20px; font-size: 0.9rem;"></div>
+        </div>
+    </section>
+
+    <footer>
+        <h2 class="font-serif">R & R</h2>
+        <p>06 . 01 . 2026</p>
+    </footer>
+
+    <script>
+        // MUSIK & COVER
+        const music = document.getElementById('bg-music');
+        const musicBox = document.querySelector('.music-box');
+
+        function bukaUndangan() {
+            document.getElementById('cover').classList.add('open');
+            music.play().catch(e => console.log("Audio perlu interaksi"));
+            musicBox.classList.add('playing');
+        }
+
+        function toggleMusic() {
+            if (music.paused) {
+                music.play();
+                musicBox.classList.add('playing');
+            } else {
+                music.pause();
+                musicBox.classList.remove('playing');
+            }
+        }
+
+        // COUNTDOWN
+        const weddingDate = new Date("Jan 6, 2026 08:00:00").getTime();
+        setInterval(function() {
+            const now = new Date().getTime();
+            const distance = weddingDate - now;
+            document.getElementById("days").innerText = Math.floor(distance / (1000 * 60 * 60 * 24));
+            document.getElementById("hours").innerText = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            document.getElementById("minutes").innerText = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        }, 1000);
+
+        // UCAPAN SEDERHANA (Hanya di layar ini)
+        function kirimUcapan() {
+            const nama = document.getElementById('namaTamu').value;
+            const isi = document.getElementById('ucapanTamu').value;
+            if(nama && isi) {
+                const div = document.createElement('div');
+                div.innerHTML = `<hr style="margin:10px 0; border-top:1px dashed #ccc"><strong>${nama}:</strong> ${isi}`;
+                document.getElementById('listUcapan').appendChild(div);
+                document.getElementById('namaTamu').value = '';
+                document.getElementById('ucapanTamu').value = '';
+                alert('Terima kasih atas ucapannya!');
+            }
+        }
+    </script>
+</body>
+</html>
